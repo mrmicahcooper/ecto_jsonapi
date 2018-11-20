@@ -1,21 +1,7 @@
 # EctoJsonapi
 
-**TODO: Add description**
-
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ecto_jsonapi` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:ecto_jsonapi, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/ecto_jsonapi](https://hexdocs.pm/ecto_jsonapi).
-
+EctoJsonapi is tool for dealing with JsonAPI and Ecto schemas
+- Converts Ecto schemas into elixir maps structured like Json API v1.0
+- Transforms your Json API v1.0 documents into a shape that Ecto 3.0 likes
+- Provides convenience methods for asserting links, attributes, ids,
+  relationships, type, included data, and metadata in Json API documents
