@@ -1,0 +1,46 @@
+{
+  "config/config.exs":{ "type": "config" },
+  "config/*.exs":{
+    "type": "config",
+    "template":[
+      "use Mix.Config"
+    ]
+  },
+  "mix.exs":{ "type": "x" },
+  "test/fixtures":{ "type":"fixture" },
+  "test/fixtures/*":{ "type":"fixture" },
+  "*.exs": { "console": "iex -S mix" },
+  "*.ex": { "console": "iex -S mix" },
+
+  "lib":{ "type": "lib" },
+  "lib/*.ex":{
+    "type": "lib",
+    "alternate": "test/{}_test.exs",
+    "template":[
+      "defmodule {project|camelcase|basename}.{camelcase|dot} do",
+      "",
+      "end"
+    ]
+  },
+  "test":{ "type":"test" },
+
+  "test/*_test.exs":{
+    "type": "test",
+    "alternate": "lib/{}.ex",
+    "template":[
+      "defmodule {snakecase|dot}Test do",
+      "  use ExUnit.Case#, async:true",
+      "",
+      "end"
+    ]
+  },
+
+  "test/test_helper.exs":{
+    "type":"helper"
+  },
+
+  "test/support":{
+    "type":"support"
+  }
+
+}
