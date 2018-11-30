@@ -1,18 +1,4 @@
 defmodule EctoJsonapi do
-  @moduledoc """
-  Documentation for EctoJsonapi.
-  """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> EctoJsonapi.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def to_json(schema) do
   end
 end
