@@ -1,3 +1,14 @@
+defmodule CreditCard do
+  use Ecto.Schema
+
+  schema "credit_cards" do
+    field(:number, :string)
+    field(:expiration_date, :string)
+    field(:cvv, :string)
+    belongs_to(:user, User)
+  end
+end
+
 defmodule User do
   use Ecto.Schema
 
@@ -10,13 +21,13 @@ defmodule User do
   end
 end
 
-defmodule CreditCard do
+defmodule Event do
   use Ecto.Schema
 
-  schema "credit_cards" do
-    field(:number, :string)
-    field(:expiration_date, :string)
-    field(:cvv, :string)
-    belongs_to(:user, User)
+  schema "events" do
+    field(:name, :string)
+    field(:content, :map)
+
+    timestamps()
   end
 end
