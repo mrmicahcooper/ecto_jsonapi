@@ -37,13 +37,13 @@ defmodule EctoJsonapi do
   defp resource_object({:__struct__, _}, acc), do: acc
 
   defp resource_object({key, %Ecto.Association.NotLoaded{}}, {doc, schema}) do
-    relationship = relationship(schema, key)
+    relationship = resource_identifier_object(schema, key)
     {put_in(doc, [:relationships, key], relationship), schema}
   end
 
   # only add the relationship part of a belongs_to. The `included` part is added later
   defp resource_object({key, %{__struct__: _}}, {doc, schema}) do
-    relationship = relationship(schema, key)
+    relationship = resource_identifier_object(schema, key)
     {put_in(doc, [:relationships, key], relationship), schema}
   end
 
@@ -77,7 +77,7 @@ defmodule EctoJsonapi do
     end
   end
 
-  defp relationship(schema, key) do
+  defp resource_identifier_object(schema, key) do
     association = schema.__struct__.__schema__(:association, key)
     type = type(association.queryable)
     owner_key = association.owner_key
