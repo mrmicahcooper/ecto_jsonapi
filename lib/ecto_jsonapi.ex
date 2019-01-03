@@ -48,8 +48,18 @@ defmodule EctoJsonapi do
   end
 
   # skip has_many
-  defp resource_object({_key, [%{__struct__: _} | _]}, acc) do
-    acc
+  defp resource_object({key, [%{__struct__: _} | _] = children_schema}, {doc, schema}) do
+    relationships =
+      Enum.map(children_schema, fn schema ->
+        %{
+          type: type(schema),
+          id: schema.id
+        }
+      end)
+
+    resource_identifier_objects = %{data: relationships}
+
+    {put_in(doc, [:relationships, key], resource_identifier_objects), schema}
   end
 
   defp resource_object({key, value}, {doc, schema}) do

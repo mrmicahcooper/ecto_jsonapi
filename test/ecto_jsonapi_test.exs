@@ -113,6 +113,11 @@ defmodule EctoJsonapiTest do
     test "1 schema with loaded has_many", data do
       json = EctoJsonapi.to_json(data.user_with_credit_cards)
 
+      assert get_in(json.data.relationships.credit_cards.data, [Access.all(), :id]) == [
+               456,
+               789
+             ]
+
       assert get_in(json.included, [Access.all(), :attributes, :number]) == [
                "4444 4444 4444 4444",
                "5555 5555 5555 5555"
