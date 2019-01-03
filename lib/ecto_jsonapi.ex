@@ -1,19 +1,19 @@
 defmodule EctoJsonapi do
   def to_json(schemas) when is_list(schemas) do
     %{
-      data: Enum.map(schemas, &data/1)
+      data: Enum.map(schemas, &resource_object/1)
     }
   end
 
   def to_json(schema) do
     %{
-      data: data(schema),
+      data: resource_object(schema),
       included: included(schema),
       meta: %{}
     }
   end
 
-  defp data(schema) do
+  defp resource_object(schema) do
     default_data = %{
       type: type(schema),
       id: nil,
@@ -23,35 +23,36 @@ defmodule EctoJsonapi do
 
     schema_map = Map.from_struct(schema)
 
-    {data, _schema} = Enum.reduce(schema_map, {default_data, schema}, &data/2)
+    {resource_object, _schema} =
+      Enum.reduce(schema_map, {default_data, schema}, &resource_object/2)
 
-    data
+    resource_object
   end
 
   defp type(%{__meta__: %{source: source}}), do: source
   defp type(ecto_schema_module), do: ecto_schema_module.__schema__(:source)
 
-  defp data({:id, id}, {doc, schema}), do: {Map.put(doc, :id, id), schema}
-  defp data({:__meta__, _}, acc), do: acc
-  defp data({:__struct__, _}, acc), do: acc
+  defp resource_object({:id, id}, {doc, schema}), do: {Map.put(doc, :id, id), schema}
+  defp resource_object({:__meta__, _}, acc), do: acc
+  defp resource_object({:__struct__, _}, acc), do: acc
 
-  defp data({key, %Ecto.Association.NotLoaded{}}, {doc, schema}) do
+  defp resource_object({key, %Ecto.Association.NotLoaded{}}, {doc, schema}) do
     relationship = relationship(schema, key)
     {put_in(doc, [:relationships, key], relationship), schema}
   end
 
   # only add the relationship part of a belongs_to. The `included` part is added later
-  defp data({key, %{__struct__: _}}, {doc, schema}) do
+  defp resource_object({key, %{__struct__: _}}, {doc, schema}) do
     relationship = relationship(schema, key)
     {put_in(doc, [:relationships, key], relationship), schema}
   end
 
   # skip has_many
-  defp data({_key, [%{__struct__: _} | _]}, acc) do
+  defp resource_object({_key, [%{__struct__: _} | _]}, acc) do
     acc
   end
 
-  defp data({key, value}, {doc, schema}) do
+  defp resource_object({key, value}, {doc, schema}) do
     {put_in(doc, [:attributes, key], value), schema}
   end
 
@@ -68,11 +69,11 @@ defmodule EctoJsonapi do
         list
 
       associated_data when is_list(associated_data) ->
-        datas = Enum.map(associated_data, &data/1)
+        datas = Enum.map(associated_data, &resource_object/1)
         datas ++ list
 
       associated_data ->
-        [data(associated_data) | list]
+        [resource_object(associated_data) | list]
     end
   end
 
