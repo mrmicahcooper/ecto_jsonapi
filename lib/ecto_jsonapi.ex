@@ -40,10 +40,15 @@ defmodule EctoJsonapi do
     {put_in(doc, [:relationships, key], relationship), schema}
   end
 
-  # only add the relationship part of a associated schema. The `included` part is added later
+  # only add the relationship part of a belongs_to. The `included` part is added later
   defp data({key, %{__struct__: _}}, {doc, schema}) do
     relationship = relationship(schema, key)
     {put_in(doc, [:relationships, key], relationship), schema}
+  end
+
+  # skip has_many
+  defp data({_key, [%{__struct__: _} | _]}, acc) do
+    acc
   end
 
   defp data({key, value}, {doc, schema}) do
@@ -55,13 +60,19 @@ defmodule EctoJsonapi do
     Enum.reduce(associations, {[], schema}, &included_data/2)
   end
 
-  defp included_data(association, {list, schema}) when not is_list(association) do
+  defp included_data(association, {list, schema}) do
     associated_data = Map.get(schema, association)
 
-    if associated_data.__struct__ == Ecto.Association.NotLoaded do
-      list
-    else
-      [data(associated_data) | list]
+    case associated_data do
+      %Ecto.Association.NotLoaded{} ->
+        list
+
+      associated_data when is_list(associated_data) ->
+        datas = Enum.map(associated_data, &data/1)
+        datas ++ list
+
+      associated_data ->
+        [data(associated_data) | list]
     end
   end
 

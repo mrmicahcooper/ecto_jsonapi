@@ -8,27 +8,46 @@ defmodule EctoJsonapiTest do
       content: %{foo: "bar"}
     }
 
-    credit_card = %CreditCard{
-      id: 456,
-      number: "4444 4444 4444 4444",
-      expiration_date: "2018-02",
-      cvv: "123",
-      user_id: 123
-    }
-
     user = %User{
       id: 456,
       name: "Micah Cooper",
       email: "mrmicahcooper@gmail.com"
     }
 
-    credit_card_with_user = %CreditCard{
+    credit_card = %CreditCard{
       id: 456,
       number: "4444 4444 4444 4444",
       expiration_date: "2018-02",
       cvv: "123",
+      user_id: user.id
+    }
+
+    credit_card_with_user = %CreditCard{
+      id: 456,
+      number: "4444 4444 4444 4444",
+      expiration_date: "2018-02",
+      cvv: "321",
       user_id: user.id,
       user: user
+    }
+
+    credit_card_with_user_2 = %CreditCard{
+      id: 789,
+      number: "5555 5555 5555 5555",
+      expiration_date: "2018-02",
+      cvv: "234",
+      user_id: user.id,
+      user: user
+    }
+
+    user_with_credit_cards = %User{
+      id: user.id,
+      name: "Micah Cooper",
+      email: "mrmicahcooper@gmail.com",
+      credit_cards: [
+        credit_card_with_user,
+        credit_card_with_user_2
+      ]
     }
 
     {:ok,
@@ -36,7 +55,8 @@ defmodule EctoJsonapiTest do
        user: user,
        event: event,
        credit_card: credit_card,
-       credit_card_with_user: credit_card_with_user
+       credit_card_with_user: credit_card_with_user,
+       user_with_credit_cards: user_with_credit_cards
      }}
   end
 
@@ -71,7 +91,7 @@ defmodule EctoJsonapiTest do
       assert json.data.relationships.user == %{
                data: %{
                  type: "users",
-                 id: 123
+                 id: data.user.id
                }
              }
     end
@@ -88,6 +108,20 @@ defmodule EctoJsonapiTest do
 
       assert get_in(json.included, [Access.all(), :id]) == [data.user.id]
       assert get_in(json.included, [Access.all(), :attributes, :name]) == [data.user.name]
+    end
+
+    test "1 schema with loaded has_many", data do
+      json = EctoJsonapi.to_json(data.user_with_credit_cards)
+
+      assert get_in(json.included, [Access.all(), :attributes, :number]) == [
+               "4444 4444 4444 4444",
+               "5555 5555 5555 5555"
+             ]
+
+      assert get_in(json.included, [Access.all(), :attributes, :cvv]) == [
+               "321",
+               "234"
+             ]
     end
   end
 end
