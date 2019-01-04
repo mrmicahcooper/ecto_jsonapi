@@ -24,13 +24,8 @@ defmodule EctoJsonapi do
 
   defp attributes(ecto) do
     primary_key = primary_key(ecto)
-    relationship_keys = associations(ecto) ++ embeds(ecto)
-
-    attribute_keys =
-      ecto
-      |> Map.keys()
-      |> Kernel.--([:__meta__, :__struct__, primary_key])
-      |> Kernel.--(relationship_keys)
+    ignored_keys = [:__meta__, :__struct__, primary_key] ++ associations(ecto) ++ embeds(ecto)
+    attribute_keys = Map.keys(ecto) -- ignored_keys
 
     Map.take(ecto, attribute_keys)
   end
