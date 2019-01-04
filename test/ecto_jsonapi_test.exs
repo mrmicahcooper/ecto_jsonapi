@@ -144,5 +144,29 @@ defmodule EctoJsonapiTest do
                "234"
              ]
     end
+
+    test "2 schemas with loaded has many", data do
+      json = EctoJsonapi.to_json([data.user_with_credit_cards, data.user_with_credit_cards])
+
+      assert get_in(json.data, [
+               Access.all(),
+               :relationships,
+               :credit_cards,
+               :data,
+               Access.all(),
+               :id
+             ])
+             |> List.flatten() == [456, 789, 456, 789]
+
+      assert get_in(json.included, [Access.all(), :attributes, :number]) == [
+               "4444 4444 4444 4444",
+               "5555 5555 5555 5555"
+             ]
+
+      assert get_in(json.included, [Access.all(), :attributes, :cvv]) == [
+               "321",
+               "234"
+             ]
+    end
   end
 end
