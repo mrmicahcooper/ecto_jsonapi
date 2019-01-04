@@ -36,8 +36,7 @@ defmodule EctoJsonapi do
         %{}
 
       relationship_attrbutes ->
-        relationship_attrbutes
-        |> Enum.reduce({%{}, ecto}, &relationship/2)
+        relationship_attrbutes |> Enum.reduce({%{}, ecto}, &relationship/2)
     end
   end
 
@@ -100,20 +99,14 @@ defmodule EctoJsonapi do
   defp embeds(ecto), do: ecto.__struct__.__schema__(:embeds)
   defp type(%{__meta__: %{source: source}}), do: source
   defp type(ecto_schema_module), do: ecto_schema_module.__schema__(:source)
-
-  defp association(ecto, key) do
-    ecto.__struct__.__schema__(:association, key)
-  end
+  defp association(ecto, key), do: ecto.__struct__.__schema__(:association, key)
 
   defp primary_key(ecto) do
     ecto.__struct__.__schema__(:primary_key) |> List.first()
   end
 
   defp id(ecto) do
-    primary_key =
-      ecto.__struct__.__schema__(:primary_key)
-      |> List.first()
-
+    primary_key = primary_key(ecto)
     Map.get(ecto, primary_key)
   end
 end
