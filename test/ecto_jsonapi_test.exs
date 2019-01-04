@@ -110,6 +110,22 @@ defmodule EctoJsonapiTest do
       assert get_in(json.included, [Access.all(), :attributes, :name]) == [data.user.name]
     end
 
+    test "2 schemas each with the same loaded belongs to", data do
+      json =
+        EctoJsonapi.to_json([
+          data.credit_card_with_user,
+          data.credit_card_with_user
+        ])
+
+      assert get_in(json.data, [Access.all(), :relationships, :user, :data, :id]) == [
+               data.user.id,
+               data.user.id
+             ]
+
+      assert get_in(json.included, [Access.all(), :id]) == [data.user.id]
+      assert get_in(json.included, [Access.all(), :attributes, :email]) == [data.user.email]
+    end
+
     test "1 schema with loaded has_many", data do
       json = EctoJsonapi.to_json(data.user_with_credit_cards)
 

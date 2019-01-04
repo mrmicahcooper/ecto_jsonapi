@@ -1,15 +1,15 @@
 defmodule EctoJsonapi do
   def to_json(schemas) when is_list(schemas) do
     %{
-      data: Enum.map(schemas, &resource_object/1)
+      data: Enum.map(schemas, &resource_object/1),
+      included: Enum.reduce(schemas, [], &included/2) |> Enum.uniq()
     }
   end
 
   def to_json(schema) do
     %{
       data: resource_object(schema),
-      included: included(schema),
-      meta: %{}
+      included: included(schema)
     }
   end
 
@@ -66,9 +66,11 @@ defmodule EctoJsonapi do
     {put_in(doc, [:attributes, key], value), schema}
   end
 
-  defp included(schema) do
-    associations = schema.__struct__.__schema__(:associations)
-    Enum.reduce(associations, {[], schema}, &included_data/2)
+  defp included(schema, acc \\ []) do
+    case schema.__struct__.__schema__(:associations) do
+      [] -> []
+      associations -> Enum.reduce(associations, {acc, schema}, &included_data/2)
+    end
   end
 
   defp included_data(association, {list, schema}) do
