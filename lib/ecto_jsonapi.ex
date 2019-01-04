@@ -1,92 +1,92 @@
 defmodule EctoJsonapi do
-  def to_json(schemas) when is_list(schemas) do
+  def to_json(ectos) when is_list(ectos) do
     %{
-      data: Enum.map(schemas, &resource_object/1),
-      included: Enum.reduce(schemas, [], &included/2) |> Enum.uniq()
+      data: Enum.map(ectos, &resource_object/1),
+      included: Enum.reduce(ectos, [], &included/2) |> Enum.uniq()
     }
   end
 
-  def to_json(schema) do
+  def to_json(ecto) do
     %{
-      data: resource_object(schema),
-      included: included(schema, [])
+      data: resource_object(ecto),
+      included: included(ecto, [])
     }
   end
 
-  def resource_object(schema) do
+  def resource_object(ecto) do
     %{
-      type: type(schema),
-      id: id(schema),
-      attributes: attributes(schema),
-      relationships: relationships(schema)
+      type: type(ecto),
+      id: id(ecto),
+      attributes: attributes(ecto),
+      relationships: relationships(ecto)
     }
   end
 
-  defp attributes(schema) do
-    primary_key = primary_key(schema)
-    relationship_keys = associations(schema) ++ embeds(schema)
+  defp attributes(ecto) do
+    primary_key = primary_key(ecto)
+    relationship_keys = associations(ecto) ++ embeds(ecto)
 
     attribute_keys =
-      schema
+      ecto
       |> Map.keys()
       |> Kernel.--([:__meta__, :__struct__, primary_key])
       |> Kernel.--(relationship_keys)
 
-    Map.take(schema, attribute_keys)
+    Map.take(ecto, attribute_keys)
   end
 
-  defp relationships(schema) do
-    case associations(schema) ++ embeds(schema) do
+  defp relationships(ecto) do
+    case associations(ecto) ++ embeds(ecto) do
       [] ->
         %{}
 
       relationship_attrbutes ->
         relationship_attrbutes
-        |> Enum.reduce({%{}, schema}, &relationship/2)
+        |> Enum.reduce({%{}, ecto}, &relationship/2)
     end
   end
 
-  defp relationship(attribute, {acc, schema}) do
+  defp relationship(attribute, {acc, ecto}) do
     associated_data =
-      case Map.get(schema, attribute) do
-        schemas when is_list(schemas) ->
-          Enum.map(schemas, &resource_identifier_object(&1))
+      case Map.get(ecto, attribute) do
+        ectos when is_list(ectos) ->
+          Enum.map(ectos, &resource_identifier_object(&1))
 
         %Ecto.Association.NotLoaded{} ->
-          resource_identifier_object(schema, attribute)
+          resource_identifier_object(ecto, attribute)
 
-        schema ->
-          resource_identifier_object(schema)
+        ecto ->
+          resource_identifier_object(ecto)
       end
 
     Map.put(acc, attribute, %{data: associated_data})
   end
 
-  defp resource_identifier_object(schema, attribute) do
+  defp resource_identifier_object(ecto, attribute) do
     %{
       relationship: relationship,
       owner_key: owner_key,
       queryable: queryable
-    } = association(schema, attribute)
+    } = association(ecto, attribute)
 
     if relationship == :parent do
-      %{id: Map.get(schema, owner_key), type: type(queryable)}
+      %{id: Map.get(ecto, owner_key), type: type(queryable)}
     end
   end
 
-  defp resource_identifier_object(schema) do
-    %{id: id(schema), type: type(schema)}
+  defp resource_identifier_object(ecto) do
+    %{id: id(ecto), type: type(ecto)}
   end
 
-  defp included(schema, acc) do
-    case schema.__struct__.__schema__(:associations) do
+  defp included(ecto, acc) do
+    case ecto.__struct__.__schema__(:associations) do
       [] -> []
-      associations -> Enum.reduce(associations, {acc, schema}, &included_data/2)
+      associations -> Enum.reduce(associations, {acc, ecto}, &included_data/2)
     end
   end
 
-  defp included_data(association, {list, schema}) do
-    associated_data = Map.get(schema, association)
+  defp included_data(association, {list, ecto}) do
+    associated_data = Map.get(ecto, association)
 
     case associated_data do
       %Ecto.Association.NotLoaded{} ->
@@ -101,24 +101,24 @@ defmodule EctoJsonapi do
     end
   end
 
-  defp associations(schema), do: schema.__struct__.__schema__(:associations)
-  defp embeds(schema), do: schema.__struct__.__schema__(:embeds)
+  defp associations(ecto), do: ecto.__struct__.__schema__(:associations)
+  defp embeds(ecto), do: ecto.__struct__.__schema__(:embeds)
   defp type(%{__meta__: %{source: source}}), do: source
   defp type(ecto_schema_module), do: ecto_schema_module.__schema__(:source)
 
-  defp association(schema, key) do
-    schema.__struct__.__schema__(:association, key)
+  defp association(ecto, key) do
+    ecto.__struct__.__schema__(:association, key)
   end
 
-  defp primary_key(schema) do
-    schema.__struct__.__schema__(:primary_key) |> List.first()
+  defp primary_key(ecto) do
+    ecto.__struct__.__schema__(:primary_key) |> List.first()
   end
 
-  defp id(schema) do
+  defp id(ecto) do
     primary_key =
-      schema.__struct__.__schema__(:primary_key)
+      ecto.__struct__.__schema__(:primary_key)
       |> List.first()
 
-    Map.get(schema, primary_key)
+    Map.get(ecto, primary_key)
   end
 end
