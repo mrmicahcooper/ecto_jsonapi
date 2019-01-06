@@ -64,34 +64,33 @@ defmodule EctoJsonapiTest do
     test "1 schema with no associations", data do
       json = EctoJsonapi.to_json(data.event)
 
-      assert get_in(json, [:data, :attributes, :name])
-      assert get_in(json, [:data, :attributes, :content])
-      assert get_in(json, [:data, :id])
-      assert get_in(json, [:data, :type]) == "events"
-      assert get_in(json, [:data, :relationships]) == %{}
+      assert get_in(json, ["data", "attributes", "content"])
+      assert get_in(json, ["data", "id"])
+      assert get_in(json, ["data", "type"]) == "events"
+      assert get_in(json, ["data", "relationships"]) == %{}
     end
 
     test "2 schemas with no associations", data do
       json = EctoJsonapi.to_json([data.event, data.event])
 
-      assert get_in(json.data, [Access.all(), :attributes, :name]) == ["foo", "foo"]
+      assert get_in(json, ["data", Access.all(), "attributes", "name"]) == ["foo", "foo"]
 
-      assert get_in(json.data, [Access.all(), :attributes, :content]) == [
+      assert get_in(json, ["data", Access.all(), "attributes", "content"]) == [
                %{foo: "bar"},
                %{foo: "bar"}
              ]
 
-      assert get_in(json.data, [Access.all(), :relationships]) == [%{}, %{}]
-      assert get_in(json.data, [Access.all(), :included]) == [nil, nil]
+      assert get_in(json, ["data", Access.all(), "relationships"]) == [%{}, %{}]
+      assert get_in(json, ["data", Access.all(), "included"]) == [nil, nil]
     end
 
     test "1 schema with an unloaded but present belongs_to", data do
       json = EctoJsonapi.to_json(data.credit_card)
 
-      assert json.data.relationships.user == %{
-               data: %{
-                 type: "users",
-                 id: data.user.id
+      assert get_in(json, ["data", "relationships", "user"]) == %{
+               "data" => %{
+                 "type" => "users",
+                 "id" => data.user.id
                }
              }
     end
@@ -99,15 +98,15 @@ defmodule EctoJsonapiTest do
     test "1 schema with a loaded belongs to", data do
       json = EctoJsonapi.to_json(data.credit_card_with_user)
 
-      assert json.data.relationships.user == %{
-               data: %{
-                 type: "users",
-                 id: data.user.id
+      assert get_in(json, ["data", "relationships", "user"]) == %{
+               "data" => %{
+                 "type" => "users",
+                 "id" => data.user.id
                }
              }
 
-      assert get_in(json.included, [Access.all(), :id]) == [data.user.id]
-      assert get_in(json.included, [Access.all(), :attributes, :name]) == [data.user.name]
+      assert get_in(json, ["included", Access.all(), "id"]) == [data.user.id]
+      assert get_in(json, ["included", Access.all(), "attributes", "name"]) == [data.user.name]
     end
 
     test "2 schemas each with the same loaded belongs to", data do
@@ -117,29 +116,32 @@ defmodule EctoJsonapiTest do
           data.credit_card_with_user
         ])
 
-      assert get_in(json.data, [Access.all(), :relationships, :user, :data, :id]) == [
+      foo = get_in(json, ["data", Access.all(), "relationships", "user", "data", "id"])
+
+      assert foo == [
                data.user.id,
                data.user.id
              ]
 
-      assert get_in(json.included, [Access.all(), :id]) == [data.user.id]
-      assert get_in(json.included, [Access.all(), :attributes, :email]) == [data.user.email]
+      assert get_in(json, ["included", Access.all(), "id"]) == [data.user.id]
+      assert get_in(json, ["included", Access.all(), "attributes", "email"]) == [data.user.email]
     end
 
     test "1 schema with loaded has_many", data do
       json = EctoJsonapi.to_json(data.user_with_credit_cards)
 
-      assert get_in(json.data.relationships.credit_cards.data, [Access.all(), :id]) == [
-               456,
-               789
-             ]
+      assert get_in(json, ["data", "relationships", "credit_cards", "data", Access.all(), "id"]) ==
+               [
+                 456,
+                 789
+               ]
 
-      assert get_in(json.included, [Access.all(), :attributes, :number]) == [
+      assert get_in(json, ["included", Access.all(), "attributes", "number"]) == [
                "4444 4444 4444 4444",
                "5555 5555 5555 5555"
              ]
 
-      assert get_in(json.included, [Access.all(), :attributes, :cvv]) == [
+      assert get_in(json, ["included", Access.all(), "attributes", "cvv"]) == [
                "321",
                "234"
              ]
@@ -148,22 +150,23 @@ defmodule EctoJsonapiTest do
     test "2 schemas with loaded has many", data do
       json = EctoJsonapi.to_json([data.user_with_credit_cards, data.user_with_credit_cards])
 
-      assert get_in(json.data, [
+      assert get_in(json, [
+               "data",
                Access.all(),
-               :relationships,
-               :credit_cards,
-               :data,
+               "relationships",
+               "credit_cards",
+               "data",
                Access.all(),
-               :id
+               "id"
              ])
              |> List.flatten() == [456, 789, 456, 789]
 
-      assert get_in(json.included, [Access.all(), :attributes, :number]) == [
+      assert get_in(json, ["included", Access.all(), "attributes", "number"]) == [
                "4444 4444 4444 4444",
                "5555 5555 5555 5555"
              ]
 
-      assert get_in(json.included, [Access.all(), :attributes, :cvv]) == [
+      assert get_in(json, ["included", Access.all(), "attributes", "cvv"]) == [
                "321",
                "234"
              ]

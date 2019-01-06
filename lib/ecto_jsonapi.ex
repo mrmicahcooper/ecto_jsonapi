@@ -1,24 +1,24 @@
 defmodule EctoJsonapi do
   def to_json(ectos) when is_list(ectos) do
     %{
-      data: Enum.map(ectos, &resource_object/1),
-      included: Enum.reduce(ectos, [], &included/2) |> Enum.uniq()
+      "data" => Enum.map(ectos, &resource_object/1),
+      "included" => Enum.reduce(ectos, [], &included/2) |> Enum.uniq()
     }
   end
 
   def to_json(ecto) do
     %{
-      data: resource_object(ecto),
-      included: included(ecto, [])
+      "data" => resource_object(ecto),
+      "included" => included(ecto, [])
     }
   end
 
   def resource_object(ecto) do
     %{
-      type: type(ecto),
-      id: id(ecto),
-      attributes: attributes(ecto),
-      relationships: relationships(ecto)
+      "type" => type(ecto),
+      "id" => id(ecto),
+      "attributes" => attributes(ecto),
+      "relationships" => relationships(ecto)
     }
   end
 
@@ -28,6 +28,8 @@ defmodule EctoJsonapi do
     attribute_keys = Map.keys(ecto) -- ignored_keys
 
     Map.take(ecto, attribute_keys)
+    |> Enum.map(fn {k, v} -> {to_string(k), v} end)
+    |> Enum.into(%{})
   end
 
   defp relationships(ecto) do
@@ -53,7 +55,7 @@ defmodule EctoJsonapi do
           resource_identifier_object(ecto)
       end
 
-    Map.put(acc, attribute, %{data: associated_data})
+    Map.put(acc, to_string(attribute), %{"data" => associated_data})
   end
 
   defp resource_identifier_object(ecto, attribute) do
@@ -64,12 +66,12 @@ defmodule EctoJsonapi do
     } = association(ecto, attribute)
 
     if relationship == :parent do
-      %{id: Map.get(ecto, owner_key), type: type(queryable)}
+      %{"id" => Map.get(ecto, owner_key), "type" => type(queryable)}
     end
   end
 
   defp resource_identifier_object(ecto) do
-    %{id: id(ecto), type: type(ecto)}
+    %{"id" => id(ecto), "type" => type(ecto)}
   end
 
   defp included(ecto, acc) do
