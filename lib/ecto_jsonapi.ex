@@ -28,7 +28,7 @@ defmodule EctoJsonapi do
     attribute_keys = Map.keys(ecto) -- ignored_keys
 
     Map.take(ecto, attribute_keys)
-    |> Enum.map(fn {k, v} -> {to_string(k), v} end)
+    |> Enum.map(fn {k, v} -> {to_camel(k), v} end)
     |> Enum.into(%{})
   end
 
@@ -55,7 +55,7 @@ defmodule EctoJsonapi do
           resource_identifier_object(ecto)
       end
 
-    Map.put(acc, to_string(attribute), %{"data" => associated_data})
+    Map.put(acc, to_camel(attribute), %{"data" => associated_data})
   end
 
   defp resource_identifier_object(ecto, attribute) do
@@ -95,6 +95,12 @@ defmodule EctoJsonapi do
       associated_data ->
         [resource_object(associated_data) | list]
     end
+  end
+
+  defp to_camel(key) do
+    key
+    |> to_string()
+    |> EctoJsonapi.Utilities.Camelcase.parse()
   end
 
   defp associations(ecto), do: ecto.__struct__.__schema__(:associations)

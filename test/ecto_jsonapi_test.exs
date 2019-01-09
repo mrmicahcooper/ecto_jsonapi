@@ -130,7 +130,7 @@ defmodule EctoJsonapiTest do
     test "1 schema with loaded has_many", data do
       json = EctoJsonapi.to_json(data.user_with_credit_cards)
 
-      assert get_in(json, ["data", "relationships", "credit_cards", "data", Access.all(), "id"]) ==
+      assert get_in(json, ["data", "relationships", "creditCards", "data", Access.all(), "id"]) ==
                [
                  456,
                  789
@@ -154,7 +154,7 @@ defmodule EctoJsonapiTest do
                "data",
                Access.all(),
                "relationships",
-               "credit_cards",
+               "creditCards",
                "data",
                Access.all(),
                "id"
