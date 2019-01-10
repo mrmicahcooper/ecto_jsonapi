@@ -9,7 +9,7 @@ defmodule EctoJsonapi do
   def to_json(ecto) do
     %{
       "data" => resource_object(ecto),
-      "included" => included(ecto, [])
+      "included" => included(ecto)
     }
   end
 
@@ -74,7 +74,7 @@ defmodule EctoJsonapi do
     %{"id" => id(ecto), "type" => type(ecto)}
   end
 
-  defp included(ecto, acc) do
+  defp included(ecto, acc \\ []) do
     case ecto.__struct__.__schema__(:associations) do
       [] -> []
       associations -> Enum.reduce(associations, {acc, ecto}, &included_data/2)
