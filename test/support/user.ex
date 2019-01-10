@@ -14,7 +14,8 @@ defmodule User do
 
   def changeset(params) do
     %__MODULE__{}
-    |> cast(params, [:name, :email, :age])
+    |> cast(params, ~w[name email age]a)
+    |> cast_assoc(:credit_cards)
     |> validate_number(:age, greater_than: 21)
     |> validate_length(:name, min: 3)
     |> validate_required([:email])

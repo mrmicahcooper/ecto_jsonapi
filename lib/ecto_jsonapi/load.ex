@@ -96,31 +96,10 @@ defmodule EctoJsonapi.Load do
   ```
   """
 
-  def to_json(%Ecto.Changeset{errors: errors}) do
-    %{
-      "errors" => Enum.map(errors, &error_format/1)
-    }
+  def load(%Ecto.Changeset{errors: errors}) do
+    errors = Enum.map(errors, &error_format/1)
+    %{"errors" => errors}
   end
-
-  defp error_format({attr, detail}) do
-    %{
-      "detail" => detail(detail),
-      "status" => 422,
-      "title" => "Invalid Attributes",
-      "source" => %{
-        "pointer" => "data/attributes/#{attr}",
-        "parameter" => to_string(attr)
-      }
-    }
-  end
-
-  def detail({message, values}) do
-    Enum.reduce(values, message, fn {k, v}, acc ->
-      String.replace(acc, "%{#{to_camel(k)}}", to_string(v))
-    end)
-  end
-
-  def detail(message), do: message
 
   def load(ectos) when is_list(ectos), do: load(ectos, [])
   def load(ecto), do: load(ecto, [])
@@ -276,4 +255,25 @@ defmodule EctoJsonapi.Load do
     primary_key = primary_key(ecto)
     Map.get(ecto, primary_key)
   end
+
+  defp error_format({attr, detail}) do
+    %{
+      "detail" => detail(detail),
+      "status" => 422,
+      "title" => "Invalid Attributes",
+      "source" => %{
+        "pointer" => "data/attributes/#{attr}",
+        "parameter" => to_string(attr)
+      }
+    }
+  end
+
+  def detail({message, values}) do
+    Enum.reduce(values, message, fn {k, v}, acc ->
+      key = k |> to_string() |> String.replace("_", "-")
+      String.replace(acc, "%{#{key}}", to_string(v))
+    end)
+  end
+
+  def detail(message), do: message
 end
