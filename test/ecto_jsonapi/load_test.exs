@@ -188,5 +188,16 @@ defmodule EctoJsonapi.LoadTest do
                "234"
              ]
     end
+
+    test "a changeset with errors", _data do
+      changeset = %{age: 19, name: "Jo", email: nil} |> User.changeset()
+      json = EctoJsonapi.to_json(changeset)
+
+      assert get_in(json, ["errors", Access.all(), "source", "parameter"]) == ~w[
+        email
+        name
+        age
+      ]
+    end
   end
 end

@@ -96,6 +96,32 @@ defmodule EctoJsonapi.Load do
   ```
   """
 
+  def to_json(%Ecto.Changeset{errors: errors}) do
+    %{
+      "errors" => Enum.map(errors, &error_format/1)
+    }
+  end
+
+  defp error_format({attr, detail}) do
+    %{
+      "detail" => detail(detail),
+      "status" => 422,
+      "title" => "Invalid Attributes",
+      "source" => %{
+        "pointer" => "data/attributes/#{attr}",
+        "parameter" => to_string(attr)
+      }
+    }
+  end
+
+  def detail({message, values}) do
+    Enum.reduce(values, message, fn {k, v}, acc ->
+      String.replace(acc, "%{#{to_camel(k)}}", to_string(v))
+    end)
+  end
+
+  def detail(message), do: message
+
   def load(ectos) when is_list(ectos), do: load(ectos, [])
   def load(ecto), do: load(ecto, [])
 
@@ -205,6 +231,7 @@ defmodule EctoJsonapi.Load do
     case ecto.__struct__.__schema__(:associations) do
       [] ->
         []
+
       associations ->
         associations
         |> Enum.reduce({acc, ecto}, &included_data/2)
@@ -220,8 +247,7 @@ defmodule EctoJsonapi.Load do
         {list, ecto}
 
       associated_data when is_list(associated_data) ->
-        datas =
-          Enum.map(associated_data, &resource_object/1) ++ list
+        datas = Enum.map(associated_data, &resource_object/1) ++ list
         {datas, ecto}
 
       associated_data ->
