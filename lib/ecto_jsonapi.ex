@@ -28,8 +28,7 @@ defmodule EctoJsonapi do
     attribute_keys = Map.keys(ecto) -- ignored_keys
 
     Map.take(ecto, attribute_keys)
-    |> Enum.map(fn {k, v} -> {to_camel(k), v} end)
-    |> Enum.into(%{})
+    |> Enum.into(%{}, fn {k, v} -> {to_camel(k), v} end)
   end
 
   defp relationships(ecto) do
