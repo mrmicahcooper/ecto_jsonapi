@@ -6,26 +6,31 @@ defmodule EctoJsonapi do
     }
   end
 
-  def to_json(ecto) do
+  def to_json(ecto, options \\ []) do
     %{
-      "data" => resource_object(ecto),
-      "included" => included(ecto)
+      "data" => resource_object(ecto, options),
+      "included" => included(ecto, [])
     }
   end
 
-  def resource_object(ecto) do
+  defp resource_object(ecto, options \\ []) do
     %{
       "type" => type(ecto),
       "id" => id(ecto),
-      "attributes" => attributes(ecto),
+      "attributes" => attributes(ecto, options),
       "relationships" => relationships(ecto)
     }
   end
 
-  defp attributes(ecto) do
+  defp attributes(ecto, options) do
     primary_key = primary_key(ecto)
     ignored_keys = [:__meta__, :__struct__, primary_key] ++ associations(ecto) ++ embeds(ecto)
-    attribute_keys = Map.keys(ecto) -- ignored_keys
+
+    attribute_keys =
+      case options[:attributes][ecto.__struct__] do
+        nil -> Map.keys(ecto) -- ignored_keys
+        attributes -> attributes -- ignored_keys
+      end
 
     Map.take(ecto, attribute_keys)
     |> Enum.into(%{}, fn {k, v} -> {to_camel(k), v} end)

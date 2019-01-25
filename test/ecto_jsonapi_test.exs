@@ -70,6 +70,21 @@ defmodule EctoJsonapiTest do
       assert get_in(json, ["data", "relationships"]) == %{}
     end
 
+    test "1 schema wit no associations. Filtering attributes", data do
+      json =
+        EctoJsonapi.to_json(data.event,
+          attributes: %{
+            Event => [:name, :inserted_at]
+          }
+        )
+
+      json_attributes = get_in(json, ["data", "attributes"])
+
+      refute Map.has_key?(json_attributes, "content")
+      assert Map.has_key?(json_attributes, "name")
+      assert Map.has_key?(json_attributes, "insertedAt")
+    end
+
     test "2 schemas with no associations", data do
       json = EctoJsonapi.to_json([data.event, data.event])
 
