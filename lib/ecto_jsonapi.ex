@@ -33,7 +33,7 @@ defmodule EctoJsonapi do
       end
 
     Map.take(ecto, attribute_keys)
-    |> Enum.into(%{}, fn {k, v} -> {to_camel(k), v} end)
+    |> Enum.into(%{}, fn {k, v} -> {to_dash(k), v} end)
   end
 
   defp relationships(ecto) do
@@ -59,7 +59,7 @@ defmodule EctoJsonapi do
           resource_identifier_object(ecto)
       end
 
-    Map.put(acc, to_camel(attribute), %{"data" => associated_data})
+    Map.put(acc, to_dash(attribute), %{"data" => associated_data})
   end
 
   defp resource_identifier_object(ecto, attribute) do
@@ -78,7 +78,7 @@ defmodule EctoJsonapi do
     %{"id" => id(ecto), "type" => type(ecto)}
   end
 
-  defp included(ecto, acc \\ []) do
+  defp included(ecto, acc) do
     case ecto.__struct__.__schema__(:associations) do
       [] -> []
       associations -> Enum.reduce(associations, {acc, ecto}, &included_data/2)
@@ -101,10 +101,10 @@ defmodule EctoJsonapi do
     end
   end
 
-  defp to_camel(key) do
+  defp to_dash(key) do
     key
     |> to_string()
-    |> EctoJsonapi.Utilities.Camelcase.parse()
+    |> String.replace("_", "-")
   end
 
   defp associations(ecto), do: ecto.__struct__.__schema__(:associations)
