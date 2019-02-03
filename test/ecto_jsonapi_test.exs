@@ -60,9 +60,9 @@ defmodule EctoJsonapiTest do
      }}
   end
 
-  describe "to_json" do
+  describe "serialize" do
     test "1 schema with no associations", data do
-      json = EctoJsonapi.to_json(data.event)
+      json = EctoJsonapi.serialize(data.event)
 
       assert get_in(json, ["data", "attributes", "content"])
       assert get_in(json, ["data", "id"])
@@ -72,7 +72,7 @@ defmodule EctoJsonapiTest do
 
     test "1 schema wit no associations. Filtering attributes", data do
       json =
-        EctoJsonapi.to_json(data.event,
+        EctoJsonapi.serialize(data.event,
           attributes: %{
             Event => [:name, :inserted_at]
           }
@@ -86,7 +86,7 @@ defmodule EctoJsonapiTest do
     end
 
     test "2 schemas with no associations", data do
-      json = EctoJsonapi.to_json([data.event, data.event])
+      json = EctoJsonapi.serialize([data.event, data.event])
 
       assert get_in(json, ["data", Access.all(), "attributes", "name"]) == ["foo", "foo"]
 
@@ -100,7 +100,7 @@ defmodule EctoJsonapiTest do
     end
 
     test "1 schema with an unloaded but present belongs_to", data do
-      json = EctoJsonapi.to_json(data.credit_card)
+      json = EctoJsonapi.serialize(data.credit_card)
 
       assert get_in(json, ["data", "relationships", "user"]) == %{
                "data" => %{
@@ -111,7 +111,7 @@ defmodule EctoJsonapiTest do
     end
 
     test "1 schema with a loaded belongs to", data do
-      json = EctoJsonapi.to_json(data.credit_card_with_user)
+      json = EctoJsonapi.serialize(data.credit_card_with_user)
 
       assert get_in(json, ["data", "relationships", "user"]) == %{
                "data" => %{
@@ -126,7 +126,7 @@ defmodule EctoJsonapiTest do
 
     test "2 schemas each with the same loaded belongs to", data do
       json =
-        EctoJsonapi.to_json([
+        EctoJsonapi.serialize([
           data.credit_card_with_user,
           data.credit_card_with_user
         ])
@@ -143,7 +143,7 @@ defmodule EctoJsonapiTest do
     end
 
     test "1 schema with loaded has_many", data do
-      json = EctoJsonapi.to_json(data.user_with_credit_cards)
+      json = EctoJsonapi.serialize(data.user_with_credit_cards)
 
       assert get_in(json, ["data", "relationships", "credit-cards", "data", Access.all(), "id"]) ==
                [
@@ -163,7 +163,7 @@ defmodule EctoJsonapiTest do
     end
 
     test "2 schemas with loaded has many", data do
-      json = EctoJsonapi.to_json([data.user_with_credit_cards, data.user_with_credit_cards])
+      json = EctoJsonapi.serialize([data.user_with_credit_cards, data.user_with_credit_cards])
 
       assert get_in(json, [
                "data",

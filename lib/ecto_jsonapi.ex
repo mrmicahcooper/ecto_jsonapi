@@ -1,12 +1,12 @@
 defmodule EctoJsonapi do
-  def to_json(ectos) when is_list(ectos) do
+  def serialize(ectos) when is_list(ectos) do
     %{
       "data" => Enum.map(ectos, &resource_object/1),
       "included" => Enum.reduce(ectos, [], &included/2) |> Enum.uniq()
     }
   end
 
-  def to_json(ecto, options \\ []) do
+  def serialize(ecto, options \\ []) do
     %{
       "data" => resource_object(ecto, options),
       "included" => included(ecto, [])
