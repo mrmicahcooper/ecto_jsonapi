@@ -1,12 +1,15 @@
 defmodule EctoJsonapi.Load do
-  def load(ectos) when is_list(ectos) do
+  def load(ectos) when is_list(ectos), do: load(ectos, [])
+  def load(ecto), do: load(ecto, [])
+
+  def load(ectos, options) when is_list(ectos) do
     %{
-      "data" => Enum.map(ectos, &resource_object/1),
+      "data" => Enum.map(ectos, &resource_object(&1, options)),
       "included" => Enum.reduce(ectos, [], &included/2) |> Enum.uniq()
     }
   end
 
-  def load(ecto, options \\ []) do
+  def load(ecto, options) do
     %{
       "data" => resource_object(ecto, options),
       "included" => included(ecto, [])
@@ -24,7 +27,11 @@ defmodule EctoJsonapi.Load do
 
   defp attributes(ecto, options) do
     primary_key = primary_key(ecto)
-    ignored_keys = [:__meta__, :__struct__, primary_key] ++ associations(ecto) ++ embeds(ecto)
+
+    ignored_keys =
+      [:__meta__, :__struct__, primary_key]
+      |> Enum.concat(associations(ecto))
+      |> Enum.concat(embeds(ecto))
 
     attribute_keys =
       case options[:attributes][ecto.__struct__] do
