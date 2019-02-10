@@ -3,17 +3,33 @@ defmodule EctoJsonapi.Load do
   def load(ecto), do: load(ecto, [])
 
   def load(ectos, options) when is_list(ectos) do
-    %{
-      "data" => Enum.map(ectos, &resource_object(&1, options)),
-      "included" => Enum.reduce(ectos, [], &included/2) |> Enum.uniq()
-    }
+    included = Enum.reduce(ectos, [], &included/2) |> Enum.uniq()
+
+    case included do
+      [] ->
+        %{"data" => Enum.map(ectos, &resource_object(&1, options))}
+
+      included ->
+        %{
+          "data" => Enum.map(ectos, &resource_object(&1, options)),
+          "included" => included
+        }
+    end
   end
 
   def load(ecto, options) do
-    %{
-      "data" => resource_object(ecto, options),
-      "included" => included(ecto, [])
-    }
+    case included(ecto, []) do
+      [] ->
+        %{
+          "data" => resource_object(ecto, options)
+        }
+
+      included ->
+        %{
+          "data" => resource_object(ecto, options),
+          "included" => included
+        }
+    end
   end
 
   defp resource_object(ecto, options \\ []) do

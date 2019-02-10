@@ -68,6 +68,7 @@ defmodule EctoJsonapi.LoadTest do
       assert get_in(json, ["data", "id"])
       assert get_in(json, ["data", "type"]) == "events"
       assert get_in(json, ["data", "relationships"]) == %{}
+      refute Map.get(json, "included")
     end
 
     test "1 schema wit no associations. Filtering attributes", data do
