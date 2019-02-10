@@ -1,5 +1,6 @@
 defmodule EctoJsonapi.LoadTest do
   use ExUnit.Case, async: true
+  doctest EctoJsonapi.Load
 
   setup do
     event = %Event{

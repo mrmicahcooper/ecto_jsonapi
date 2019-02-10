@@ -1,4 +1,87 @@
 defmodule EctoJsonapi.Load do
+  @moduledoc """
+    Use to convert an `Ecto.Schema` into Json API
+  """
+
+  @spec load([Ecto.Schema]) :: map
+  @spec load(Ecto.Schema) :: map
+  @spec load([Ecto.Schema], keyword) :: map
+  @spec load(Ecto.Schema, keyword) :: map
+  @doc """
+  Convert `Ecto.Schema`s into a Json API map
+
+  Let's say you have the following data:
+
+  ```
+  iex(1)>  user_with_credit_cards = %User{
+  ...(1)>    id: 1,
+  ...(1)>    name: "Micah Cooper",
+  ...(1)>    email: "micah@example.com",
+  ...(1)>    credit_cards: [
+  ...(1)>      %CreditCard{
+  ...(1)>        id: 456,
+  ...(1)>          number: "4444 4444 4444 4444",
+  ...(1)>          expiration_date: "2018-02",
+  ...(1)>          cvv: "321",
+  ...(1)>          user_id: 1
+  ...(1)>        },
+  ...(1)>        %CreditCard{
+  ...(1)>          id: 789,
+  ...(1)>          number: "5555 5555 5555 5555",
+  ...(1)>          expiration_date: "2018-02",
+  ...(1)>          cvv: "234",
+  ...(1)>          user_id: 1
+  ...(1)>        }
+  ...(1)>      ]
+  ...(1)>  }
+  ...(1)> #Convert this to Jsonapi
+  ...(1)> EctoJsonapi.Load.load(user_with_credit_cards)
+  %{
+   "data" => %{
+     "attributes" => %{
+       "email" => "micah@example.com",
+       "inserted-at" => nil,
+       "name" => "Micah Cooper",
+       "updated-at" => nil
+     },
+     "id" => 1,
+     "relationships" => %{
+       "credit-cards" => %{
+         "data" => [
+           %{"id" => 456, "type" => "credit_cards"},
+           %{"id" => 789, "type" => "credit_cards"}
+         ]
+       }
+     },
+     "type" => "users"
+   },
+   "included" => [
+     %{
+       "attributes" => %{
+         "cvv" => "321",
+         "expiration-date" => "2018-02",
+         "number" => "4444 4444 4444 4444",
+         "user-id" => 1
+       },
+       "id" => 456,
+       "relationships" => %{"user" => %{"data" => %{"id" => 1, "type" => "users"}}},
+       "type" => "credit_cards"
+     },
+     %{
+       "attributes" => %{
+         "cvv" => "234",
+         "expiration-date" => "2018-02",
+         "number" => "5555 5555 5555 5555",
+         "user-id" => 1
+       },
+       "id" => 789,
+       "relationships" => %{"user" => %{"data" => %{"id" => 1, "type" => "users"}}},
+       "type" => "credit_cards"
+     }
+   ]
+  }
+  """
+
   def load(ectos) when is_list(ectos), do: load(ectos, [])
   def load(ecto), do: load(ecto, [])
 
