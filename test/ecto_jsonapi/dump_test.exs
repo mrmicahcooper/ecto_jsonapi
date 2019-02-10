@@ -8,7 +8,7 @@ defmodule EctoJsonapi.DumpTest do
           "id" => 99,
           "type" => "events",
           "attributes" => %{
-            "name" => "foo",
+            "first-name" => "foo",
             "content" => "here is the content"
           }
         }
@@ -18,7 +18,7 @@ defmodule EctoJsonapi.DumpTest do
 
       assert params == %{
                "id" => 99,
-               "name" => "foo",
+               "first_name" => "foo",
                "content" => "here is the content"
              }
     end
