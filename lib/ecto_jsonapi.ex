@@ -1,6 +1,5 @@
 defmodule EctoJsonapi do
-  def load(ectos) when is_list(ectos), do: EctoJsonapi.Load.load(ectos)
-  def load(ecto, options \\ []), do: EctoJsonapi.Load.load(ecto, options)
-
-  def dump(json), do: EctoJsonapi.Dump.dump(json)
+  defdelegate load(ectos), to: EctoJsonapi.Load
+  defdelegate load(ecto, options), to: EctoJsonapi.Load
+  defdelegate dump(json), to: EctoJsonapi.Dump
 end
