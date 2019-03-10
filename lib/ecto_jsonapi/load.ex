@@ -5,10 +5,22 @@ defmodule EctoJsonapi.Load do
 
   @spec load([Ecto.Schema]) :: map
   @spec load(Ecto.Schema) :: map
-  @spec load([Ecto.Schema], keyword) :: map
-  @spec load(Ecto.Schema, keyword) :: map
+  @spec load([Ecto.Schema], %{module => [atom]}) :: map
+  @spec load(Ecto.Schema, %{module => [atom]}) :: map
   @doc """
   Convert `Ecto.Schema`s into a Json API map
+
+  This looks at your schema and figures out how to convert it to the Jsonapi V1.0 spec
+
+  ## Options
+
+  The following options are accepted:
+  - `:attributes` - the attributes you want to return for each type of `Ecto.Schema`
+  being loaded. This is a map where the key is a module name and the value is a list of fields.<br\> E.g.
+  ` attributes: %{User => [:email, :name, :age]} `. Remember, the `:id` is not
+  an attribute and is always returned.
+
+  ## Example
 
   Let's say you have the following data:
 
@@ -20,29 +32,27 @@ defmodule EctoJsonapi.Load do
   ...(1)>    credit_cards: [
   ...(1)>      %CreditCard{
   ...(1)>        id: 456,
-  ...(1)>          number: "4444 4444 4444 4444",
-  ...(1)>          expiration_date: "2018-02",
-  ...(1)>          cvv: "321",
-  ...(1)>          user_id: 1
-  ...(1)>        },
-  ...(1)>        %CreditCard{
-  ...(1)>          id: 789,
-  ...(1)>          number: "5555 5555 5555 5555",
-  ...(1)>          expiration_date: "2018-02",
-  ...(1)>          cvv: "234",
-  ...(1)>          user_id: 1
-  ...(1)>        }
-  ...(1)>      ]
+  ...(1)>        number: "4444 4444 4444 4444",
+  ...(1)>        expiration_date: "2018-02",
+  ...(1)>        cvv: "321",
+  ...(1)>        user_id: 1
+  ...(1)>      },
+  ...(1)>      %CreditCard{
+  ...(1)>        id: 789,
+  ...(1)>        number: "5555 5555 5555 5555",
+  ...(1)>        expiration_date: "2018-02",
+  ...(1)>        cvv: "234",
+  ...(1)>        user_id: 1
+  ...(1)>      }
+  ...(1)>    ]
   ...(1)>  }
-  ...(1)> #Convert this to Jsonapi
-  ...(1)> EctoJsonapi.Load.load(user_with_credit_cards)
+  ...(1)> #Convert this to Jsonapi. Only show the `User`'s email and name
+  ...(1)> EctoJsonapi.Load.load(user_with_credit_cards,
+  ...(1)>                       attributes: %{User => [:email]} )
   %{
    "data" => %{
      "attributes" => %{
-       "email" => "micah@example.com",
-       "inserted-at" => nil,
-       "name" => "Micah Cooper",
-       "updated-at" => nil
+       "email" => "micah@example.com"
      },
      "id" => 1,
      "relationships" => %{
@@ -80,6 +90,7 @@ defmodule EctoJsonapi.Load do
      }
    ]
   }
+  ```
   """
 
   def load(ectos) when is_list(ectos), do: load(ectos, [])

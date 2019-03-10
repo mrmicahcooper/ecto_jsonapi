@@ -72,7 +72,7 @@ defmodule EctoJsonapi.LoadTest do
       refute Map.get(json, "included")
     end
 
-    test "1 schema wit no associations. Filtering attributes", data do
+    test "1 schema with no associations. Filtering attributes", data do
       json =
         EctoJsonapi.Load.load(data.event,
           attributes: %{
