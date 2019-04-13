@@ -61,6 +61,9 @@ defmodule EctoJsonapi.Load do
            %{"id" => 456, "type" => "credit_cards"},
            %{"id" => 789, "type" => "credit_cards"}
          ]
+       },
+       "events" => %{
+         "data" => nil
        }
      },
      "type" => "users"
@@ -159,7 +162,9 @@ defmodule EctoJsonapi.Load do
         %{}
 
       relationship_attrbutes ->
-        relationship_attrbutes |> Enum.reduce({%{}, ecto}, &relationship/2)
+        relationship_attrbutes
+        |> Enum.reduce({%{}, ecto}, &relationship/2)
+        |> elem(0)
     end
   end
 
@@ -176,7 +181,8 @@ defmodule EctoJsonapi.Load do
           resource_identifier_object(ecto)
       end
 
-    Map.put(acc, to_dash(attribute), %{"data" => associated_data})
+    rels = Map.put(acc, to_dash(attribute), %{"data" => associated_data})
+    {rels, ecto}
   end
 
   defp resource_identifier_object(ecto, attribute) do
@@ -197,8 +203,12 @@ defmodule EctoJsonapi.Load do
 
   defp included(ecto, acc) do
     case ecto.__struct__.__schema__(:associations) do
-      [] -> []
-      associations -> Enum.reduce(associations, {acc, ecto}, &included_data/2)
+      [] ->
+        []
+      associations ->
+        associations
+        |> Enum.reduce({acc, ecto}, &included_data/2)
+        |> elem(0)
     end
   end
 
@@ -207,14 +217,16 @@ defmodule EctoJsonapi.Load do
 
     case associated_data do
       %Ecto.Association.NotLoaded{} ->
-        list
+        {list, ecto}
 
       associated_data when is_list(associated_data) ->
-        datas = Enum.map(associated_data, &resource_object/1)
-        datas ++ list
+        datas =
+          Enum.map(associated_data, &resource_object/1) ++ list
+        {datas, ecto}
 
       associated_data ->
-        [resource_object(associated_data) | list]
+        datas = [resource_object(associated_data) | list]
+        {datas, ecto}
     end
   end
 

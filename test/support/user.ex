@@ -5,6 +5,7 @@ defmodule User do
     field(:name, :string)
     field(:email, :string)
     has_many(:credit_cards, CreditCard)
+    has_many(:events, Event)
 
     timestamps()
   end
