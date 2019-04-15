@@ -11,6 +11,14 @@ defmodule EctoJsonapi.DumpTest do
             "first-name" => "foo",
             "content" => "here is the content"
           }
+        },
+        "relationships" => %{
+          "user" => %{
+            "data" => %{"type" => "users", "id" => "123"}
+          },
+          "profile" => %{
+            "data" => %{"type" => "profiles", "id" => "456"}
+          }
         }
       }
 
@@ -19,7 +27,9 @@ defmodule EctoJsonapi.DumpTest do
       assert params == %{
                "id" => 99,
                "first_name" => "foo",
-               "content" => "here is the content"
+               "content" => "here is the content",
+               "user_id" => "123",
+               "profile_id" => "456"
              }
     end
   end

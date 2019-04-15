@@ -1,18 +1,30 @@
 defmodule EctoJsonapi.Dump do
+  def dump(%{"data" => %{"attributes" => attrs, "id" => id}, "relationships" => rels}) do
+    rels = Enum.into(rels, %{}, &relationship/1)
+
+    Enum.into(attrs, %{}, &attr/1)
+    |> Map.put("id", id)
+    |> Map.merge(rels)
+  end
+
   def dump(%{"data" => %{"attributes" => attrs, "id" => id}}) do
     attrs
+    |> Enum.into(%{}, &attr/1)
     |> Map.put("id", id)
-    |> Enum.into(%{}, fn {k, v} -> {to_skid(k), v} end)
   end
 
   def dump(%{"data" => %{"attributes" => attrs}}) do
-    attrs
-    |> Enum.into(%{}, fn {k, v} -> {to_skid(k), v} end)
+    Enum.into(attrs, %{}, &attr/1)
   end
 
-  defp to_skid(key) do
-    key
-    |> to_string()
-    |> String.replace("-", "_")
+  defp attr({key, value}) do
+    key = to_string(key) |> String.replace("-", "_")
+
+    {key, value}
+  end
+
+  defp relationship({item_name, %{} = params}) do
+    id = get_in(params, ["data", "id"])
+    {"#{item_name}_id", id}
   end
 end
