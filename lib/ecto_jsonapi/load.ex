@@ -193,11 +193,12 @@ defmodule EctoJsonapi.Load do
   defp resource_identifier_object(ecto, attribute) do
     %{
       relationship: relationship,
-      owner_key: owner_key,
-      queryable: queryable
-    } = association(ecto, attribute)
+      owner_key: owner_key
+    } = assoc = association(ecto, attribute)
 
-    if relationship == :parent do
+    queryable = Map.get(assoc, :queryable)
+
+    if queryable && relationship == :parent do
       %{"id" => Map.get(ecto, owner_key), "type" => type(queryable)}
     end
   end
