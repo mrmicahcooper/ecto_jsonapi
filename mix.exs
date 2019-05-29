@@ -4,7 +4,7 @@ defmodule EctoJsonapi.MixProject do
   def project do
     [
       app: :ecto_jsonapi,
-      version: "0.1.0",
+      version: "0.2.0",
       description: "Convert Ecto Schemas to Jsonapi",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
