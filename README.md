@@ -6,4 +6,5 @@ Ecto => Json (Api)
 
 EctoJsonapi is tool for dealing with JsonAPI and Ecto schemas:
 1) `EctoJsonApi.Dump/1` Converts elixir maps Ecto schemas. 
-2) `EctoJsonApi.Load/2` Converts Ecto schemas into elixir maps structured like JsonApi v1.0.
+2) `EctoJsonApi.Dump/1` Converts JsonApi v1.0 syntax into Ecto schemas. 
+3) `EctoJsonApi.Load/2` Converts Ecto schemas into elixir maps structured like JsonApi v1.0.
