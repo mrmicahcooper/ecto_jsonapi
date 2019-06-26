@@ -1,5 +1,5 @@
-## Ecto. Json.  Api.
-Ecto => Json (Api)
+## Ecto Json:Api
+API |> Ecto => Json
 <br/>Convert an ecto schema into json.
 
 ## Nitty Gritty
