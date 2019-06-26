@@ -23,7 +23,7 @@ cd <Your Project that contains a mix.exs file.>;
 ```
 
 This application is meant to be used with Phoenix or other Elixir application.
-If you need an example phoenix application checkout: [ecto_workshop](https://github.com/jax-ex-public-repos/ecto_workshop)
+<br/>If you need an example phoenix application checkout: [ecto_workshop](https://github.com/jax-ex-public-repos/ecto_workshop)
 
 ## Example/ Usage
 ```elixir
