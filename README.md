@@ -1,4 +1,4 @@
-## Ecto Json:Api
+## Ecto Json:Api 
 API |> Ecto => Json
 <br/>Convert an ecto schema into json.
 
@@ -48,3 +48,5 @@ For a more indepth example checkout the [test suite](https://github.com/mrmicahc
 Micah really likes this project and is looking for contributors.
 
 Are you using the project? Feel free to leave an Issue to show your support: [issue](https://github.com/mrmicahcooper/ecto_jsonapi/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
+
+## Enjoyed this github project? ★ Stars are always welcome. 🤩
