@@ -1,6 +1,6 @@
 defmodule EctoJsonapi.Load do
   @moduledoc """
-    Use to convert an `Ecto.Schema` into Json API
+    Use to convert an `Ecto.Schema` into JSON:API
   """
 
   @spec load([Ecto.Schema]) :: map
@@ -10,7 +10,7 @@ defmodule EctoJsonapi.Load do
   @doc """
   Convert `Ecto.Schema`s into a Json API map
 
-  This looks at your schema and figures out how to convert it to the Jsonapi V1.0 spec
+  This looks at your schema and figures out how to convert it to the JSON:API V1.0 spec
 
   ## Options
 
@@ -46,7 +46,7 @@ defmodule EctoJsonapi.Load do
   ...(1)>      }
   ...(1)>    ]
   ...(1)>  }
-  ...(1)> #Convert this to Jsonapi. Only show the `User`'s email and name
+  ...(1)> #Convert this to JSON:API. Only show the `User`'s email and name
   ...(1)> EctoJsonapi.Load.load(user_with_credit_cards,
   ...(1)>                       attributes: %{User => [:email]} )
   %{

@@ -1,4 +1,10 @@
 defmodule EctoJsonapi.Dump do
+  @moduledoc """
+    Use to convert an  JSON:API document into a Ecto-friendly map
+  """
+
+  @spec dump(map) :: map
+
   def dump(%{"data" => %{"attributes" => attrs, "id" => id}, "relationships" => rels}) do
     rels = Enum.into(rels, %{}, &relationship/1)
 
