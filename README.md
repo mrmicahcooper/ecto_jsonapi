@@ -1,52 +1,69 @@
-## Ecto Json:Api 
-API |> Ecto => Json
-<br/>Convert an ecto schema into json.
-
-## Nitty Gritty
-
-EctoJsonapi is tool for dealing with JsonAPI and Ecto schemas:
-1) `EctoJsonApi.Dump/1` Converts elixir maps Ecto schemas.
-2) `EctoJsonApi.Dump/1` Converts JsonApi v1.0 syntax into Ecto schemas.
-3) `EctoJsonApi.Load/2` Converts Ecto schemas into elixir maps structured like JsonApi v1.0.
+## Ecto JSON:API 
+EctoJsonapi is tool for dealing with JSON:API and Ecto schemas:
+1) `EctoJsonApi.dump/1` Convert JSON:API v1.0 into Ecto friendly maps .
+2) `EctoJsonApi.load/2` Convert Ecto schemas into maps structured like JSON:API v1.0.
 
 ## Install into a Phoenix or other Elixir/Ecto application:
-```bash
-cd <Your Project that contains a mix.exs file.>;
-{
-  mix local.hex <<< Y;
-  curl -s -O https://github.com/bryanstearns/mix_deps_add/releases/download/0.1.3/mix_deps_add-0.1.3.ez &&
-  mix archive.install ./mix_deps_add-0.1.3.ez <<< Y 2>/dev/null;
-  rm -rf mix_deps_add-0.1.3.ez;
-  mix deps.add ecto_jsonapi;
-  git status;
-}
-```
 
-This application is meant to be used with Phoenix or other Elixir application.
-<br/>If you need an example phoenix application checkout: [ecto_workshop](https://github.com/jax-ex-public-repos/ecto_workshop)
+Add `:ecto_jsonapi` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:ecto_jsonapi, "~> 0.2.0"},
+  ]
+end
+```
 
 ## Example/ Usage
-```elixir
-user = %User{
-  id: 456,
-  name: "Micah Cooper",
-  email: "mrmicahcooper@gmail.com"
-}
-data = {:ok,
-  %{
-    user: user,
-  }
-}
-json = EctoJsonapi.Load.load(data)
-assert get_in(json, ["data", "attributes", "content"])
+  Let's say you have the following data:
+  ```
+    user_with_credit_cards = %User{
+    id: 1,
+      name: "Micah Cooper",
+      email: "micah@example.com",
+      credit_cards: [
+        %CreditCard{
+          id: 456,
+          number: "4444 4444 4444 4444",
+          expiration_date: "2018-02",
+          cvv: "321",
+          user_id: 1
+        }
+      ]
+    }
+   #Convert this to Jsonapi. Only show the `User`'s email and name
+   EctoJsonapi.Load.load(user_with_credit_cards,
+                         attributes: %{User => [:email]} )
 ```
-
-For a more indepth example checkout the [test suite](https://github.com/mrmicahcooper/ecto_jsonapi/blob/master/test/ecto_jsonapi/load_test.exs)
-
-
-## Contribute
-Micah really likes this project and is looking for contributors.
-
-Are you using the project? Feel free to leave an Issue to show your support: [issue](https://github.com/mrmicahcooper/ecto_jsonapi/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
-
-## Enjoyed this github project? ★ Stars are always welcome. 🤩
+```elixir
+  %{
+   "data" => %{
+     "attributes" => %{
+       "email" => "test@example.com"
+     },
+     "id" => 1,
+     "relationships" => %{
+       "credit-cards" => %{
+         "data" => [
+           %{"id" => 456, "type" => "credit_cards"}
+         ]
+       }
+     },
+     "type" => "users"
+   },
+   "included" => [
+     %{
+       "attributes" => %{
+         "cvv" => "321",
+         "expiration-date" => "2018-02",
+         "number" => "4444 4444 4444 4444",
+         "user-id" => 1
+       },
+       "id" => 456,
+       "relationships" => %{"user" => %{"data" => %{"id" => 1, "type" => "users"}}},
+       "type" => "credit_cards"
+     }
+   ]
+  }
+```
