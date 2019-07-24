@@ -16,8 +16,8 @@ end
 ```
 
 ## Example/ Usage
-  Let's say you have the following data:
-  ```
+  Let's say you have the following Ecto schema data:
+  ```elixir
     user_with_credit_cards = %User{
     id: 1,
       name: "Micah Cooper",
@@ -32,10 +32,21 @@ end
         }
       ]
     }
-   #Convert this to Jsonapi. Only show the `User`'s email and name
-   EctoJsonapi.Load.load(user_with_credit_cards,
-                         attributes: %{User => [:email]} )
+
 ```
+You can convert `user_with_credit_cards` to JSON:API.
+Say you only want to return the `User`'s `email` and you only want the
+`expiration_date`, and `cvv` from the `CreditCard`
+
+```elixir
+ EctoJsonapi.load(user_with_credit_cards, 
+   attributes: %{
+     User => [:email],
+     CreditCard => [:expiration_date, :cvv]
+   } 
+ )
+```
+Resulting in:
 ```elixir
   %{
    "data" => %{
@@ -56,9 +67,7 @@ end
      %{
        "attributes" => %{
          "cvv" => "321",
-         "expiration-date" => "2018-02",
-         "number" => "4444 4444 4444 4444",
-         "user-id" => 1
+         "expiration-date" => "2018-02"
        },
        "id" => 456,
        "relationships" => %{"user" => %{"data" => %{"id" => 1, "type" => "users"}}},
