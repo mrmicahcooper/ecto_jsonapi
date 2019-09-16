@@ -30,6 +30,8 @@ defmodule EctoJsonapi.Dump do
     Enum.into(attrs, %{}, &attr/1)
   end
 
+  def dump(_), do: %{}
+
   defp attr({key, value}) do
     key = to_string(key) |> String.replace("-", "_")
 

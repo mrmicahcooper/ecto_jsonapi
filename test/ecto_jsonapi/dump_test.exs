@@ -32,5 +32,11 @@ defmodule EctoJsonapi.DumpTest do
                "profile_id" => "456"
              }
     end
+
+    test "converting an empty map" do
+      params = EctoJsonapi.Dump.dump(%{})
+
+      assert params == %{}
+    end
   end
 end
