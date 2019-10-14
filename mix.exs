@@ -12,6 +12,7 @@ defmodule EctoJsonapi.MixProject do
       deps: deps(),
       source_url: "http://github.com/mrmicahcooper/ecto_jsonapi",
       package: package(),
+      aliases: aliases(),
       docs: docs(),
       name: "EctoJsonapi"
     ]
@@ -32,6 +33,12 @@ defmodule EctoJsonapi.MixProject do
     [
       {:ecto, "~> 3.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      test: ["test --trace"]
     ]
   end
 
