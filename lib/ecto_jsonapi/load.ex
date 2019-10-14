@@ -61,9 +61,6 @@ defmodule EctoJsonapi.Load do
            %{"id" => 456, "type" => "credit_cards"},
            %{"id" => 789, "type" => "credit_cards"}
          ]
-       },
-       "events" => %{
-         "data" => nil
        }
      },
      "type" => "users"
@@ -162,19 +159,26 @@ defmodule EctoJsonapi.Load do
   end
 
   defp relationship(attribute, {acc, ecto}) do
-    associated_data =
+    rels =
       case Map.get(ecto, attribute) do
         ectos when is_list(ectos) ->
-          Enum.map(ectos, &resource_identifier_object(&1))
+          nested_resources = Enum.map(ectos, &resource_identifier_object(&1))
+          Map.put(acc, to_dash(attribute), %{"data" => nested_resources})
 
         %Ecto.Association.NotLoaded{} ->
-          resource_identifier_object(ecto, attribute)
+          resource_identifier = resource_identifier_object(ecto, attribute)
+
+          if resource_identifier == %{} do
+            acc
+          else
+            Map.put(acc, to_dash(attribute), %{"data" => resource_identifier})
+          end
 
         ecto ->
-          resource_identifier_object(ecto)
+          resource = resource_identifier_object(ecto)
+          Map.put(acc, to_dash(attribute), %{"data" => resource})
       end
 
-    rels = Map.put(acc, to_dash(attribute), %{"data" => associated_data})
     {rels, ecto}
   end
 
@@ -185,9 +189,12 @@ defmodule EctoJsonapi.Load do
     } = assoc = association(ecto, attribute)
 
     queryable = Map.get(assoc, :queryable)
+    id = Map.get(ecto, owner_key)
 
-    if queryable && relationship == :parent do
-      %{"id" => Map.get(ecto, owner_key), "type" => type(queryable)}
+    if queryable && id && relationship == :parent do
+      %{"id" => id, "type" => type(queryable)}
+    else
+      %{}
     end
   end
 

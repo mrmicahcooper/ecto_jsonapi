@@ -41,6 +41,15 @@ defmodule EctoJsonapi.LoadTest do
       user: user
     }
 
+    credit_card_without_user = %CreditCard{
+      id: 789,
+      number: "5555 5555 5555 5555",
+      expiration_date: "2018-02",
+      cvv: "234",
+      user_id: nil,
+      user: %Ecto.Association.NotLoaded{}
+    }
+
     user_with_credit_cards = %User{
       id: user.id,
       name: "Micah Cooper",
@@ -57,7 +66,8 @@ defmodule EctoJsonapi.LoadTest do
        event: event,
        credit_card: credit_card,
        credit_card_with_user: credit_card_with_user,
-       user_with_credit_cards: user_with_credit_cards
+       user_with_credit_cards: user_with_credit_cards,
+       credit_card_without_user: credit_card_without_user
      }}
   end
 
@@ -110,6 +120,11 @@ defmodule EctoJsonapi.LoadTest do
                  "id" => data.user.id
                }
              }
+    end
+
+    test "1 schema with an unloaded but present belongs_to but no id", data do
+      json = EctoJsonapi.Load.load(data.credit_card_without_user)
+      assert get_in(json, ["data", "relationships"]) == %{}
     end
 
     test "1 schema with a loaded belongs to", data do
