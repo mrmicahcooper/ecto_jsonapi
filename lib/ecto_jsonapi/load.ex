@@ -120,12 +120,19 @@ defmodule EctoJsonapi.Load do
   end
 
   defp resource_object(ecto, options \\ []) do
-    %{
+    relationships = relationships(ecto)
+
+    data = %{
       "type" => type(ecto),
       "id" => id(ecto),
-      "attributes" => attributes(ecto, options),
-      "relationships" => relationships(ecto)
+      "attributes" => attributes(ecto, options)
     }
+
+    if relationships == %{} do
+      data
+    else
+      Map.put(data, "relationships", relationships)
+    end
   end
 
   defp attributes(ecto, options) do

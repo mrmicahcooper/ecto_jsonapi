@@ -78,7 +78,7 @@ defmodule EctoJsonapi.LoadTest do
       assert get_in(json, ["data", "attributes", "content"])
       assert get_in(json, ["data", "id"])
       assert get_in(json, ["data", "type"]) == "events"
-      assert get_in(json, ["data", "relationships"]) == %{}
+      assert get_in(json, ["data", "relationships"]) == nil
       refute Map.get(json, "included")
     end
 
@@ -107,7 +107,7 @@ defmodule EctoJsonapi.LoadTest do
                %{foo: "bar"}
              ]
 
-      assert get_in(json, ["data", Access.all(), "relationships"]) == [%{}, %{}]
+      assert get_in(json, ["data", Access.all(), "relationships"]) == [nil, nil]
       assert get_in(json, ["data", Access.all(), "included"]) == [nil, nil]
     end
 
@@ -124,7 +124,7 @@ defmodule EctoJsonapi.LoadTest do
 
     test "1 schema with an unloaded but present belongs_to but no id", data do
       json = EctoJsonapi.Load.load(data.credit_card_without_user)
-      assert get_in(json, ["data", "relationships"]) == %{}
+      assert get_in(json, ["data", "relationships"]) == nil
     end
 
     test "1 schema with a loaded belongs to", data do
