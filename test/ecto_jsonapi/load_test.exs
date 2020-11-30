@@ -113,13 +113,12 @@ defmodule EctoJsonapi.LoadTest do
 
     test "1 schema with an unloaded but present belongs_to", data do
       json = EctoJsonapi.Load.load(data.credit_card)
+      require IEx; IEx.pry
 
-      assert get_in(json, ["data", "relationships", "user"]) == %{
-               "data" => %{
-                 "type" => "users",
-                 "id" => data.user.id
-               }
-             }
+      assert get_in(json, ["data", "relationships", "user", "data"]) == %{
+        "type" => "users",
+        "id" => data.user.id
+      }
     end
 
     test "1 schema with an unloaded but present belongs_to but no id", data do
@@ -130,13 +129,12 @@ defmodule EctoJsonapi.LoadTest do
     test "1 schema with a loaded belongs to", data do
       json = EctoJsonapi.Load.load(data.credit_card_with_user)
 
-      assert get_in(json, ["data", "relationships", "user"]) == %{
-               "data" => %{
-                 "type" => "users",
-                 "id" => data.user.id
-               }
-             }
+      assert get_in(json, ["data", "relationships", "user", "data"]) == %{
+        "type" => "users",
+        "id" => data.user.id
+      }
 
+      assert get_in(json, ["data", "links", "user"]) == "/users/#{data.user.id}"
       assert get_in(json, ["included", Access.all(), "id"]) == [data.user.id]
       assert get_in(json, ["included", Access.all(), "attributes", "name"]) == [data.user.name]
     end

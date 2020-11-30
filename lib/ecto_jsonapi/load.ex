@@ -75,6 +75,7 @@ defmodule EctoJsonapi.Load do
        },
        "id" => 456,
        "relationships" => %{"user" => %{"data" => %{"id" => 1, "type" => "users"}}},
+       "links" => %{"user" => "/users/1"},
        "type" => "credit_cards"
      },
      %{
@@ -86,6 +87,7 @@ defmodule EctoJsonapi.Load do
        },
        "id" => 789,
        "relationships" => %{"user" => %{"data" => %{"id" => 1, "type" => "users"}}},
+       "links" => %{"user" => "/users/1"},
        "type" => "credit_cards"
      }
    ]
@@ -121,6 +123,7 @@ defmodule EctoJsonapi.Load do
 
   defp resource_object(ecto, options \\ []) do
     relationships = relationships(ecto)
+    links = links(ecto)
 
     data = %{
       "type" => type(ecto),
@@ -128,10 +131,16 @@ defmodule EctoJsonapi.Load do
       "attributes" => attributes(ecto, options)
     }
 
-    if relationships == %{} do
+    data = if relationships == %{} do
       data
     else
       Map.put(data, "relationships", relationships)
+    end
+
+    data = if links == %{} do
+      data
+    else
+      Map.put(data, "links", links)
     end
   end
 
@@ -151,6 +160,36 @@ defmodule EctoJsonapi.Load do
 
     Map.take(ecto, attribute_keys)
     |> Enum.into(%{}, fn {k, v} -> {to_dash(k), v} end)
+  end
+
+  defp links(ecto) do
+    case associations(ecto) do
+      [] ->
+        %{}
+
+      relationship_attrbutes ->
+        relationship_attrbutes
+        |> Enum.reduce({%{}, ecto}, &link/2)
+        |> elem(0)
+    end
+  end
+
+  def link(attr, {acc, ecto}) do
+    assoc =  ecto.__struct__.__schema__(:association, attr)
+    owner_key = assoc.owner_key
+    assoc_source = assoc.related.__schema__(:source)
+
+    links = case assoc.cardinality do
+      :one ->
+        id = Map.get(ecto, owner_key) |> to_string()
+        path = Path.join(["/", assoc_source, id])
+        Map.put(acc, to_string(attr), path)
+
+      _ ->
+        acc
+    end
+
+    {links, ecto}
   end
 
   defp relationships(ecto) do
