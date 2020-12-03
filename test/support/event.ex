@@ -4,6 +4,7 @@ defmodule Event do
   schema "events" do
     field(:name, :string)
     field(:content, :map)
+    belongs_to(:user, User)
 
     timestamps()
   end

@@ -141,7 +141,7 @@ defmodule EctoJsonapi.Load do
       Map.put(data, "relationships", relationships)
     end
 
-    data = if links == %{} do
+    if links == %{} do
       data
     else
       Map.put(data, "links", links)
