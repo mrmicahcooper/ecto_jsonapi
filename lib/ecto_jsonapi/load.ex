@@ -63,7 +63,11 @@ defmodule EctoJsonapi.Load do
          ]
        }
      },
-     "type" => "users"
+     "type" => "users",
+     "links" => %{
+       "credit-cards" => "/users/1/credit_cards",
+       "events" => "/users/1/events"
+       }
    },
    "included" => [
      %{
@@ -176,18 +180,23 @@ defmodule EctoJsonapi.Load do
 
   def link(attr, {acc, ecto}, options) do
     assoc =  ecto.__struct__.__schema__(:association, attr)
-    owner_key = assoc.owner_key
     assoc_source = assoc.related.__schema__(:source)
     domain = get_in(options, [:links, :domain]) || "/"
 
     links = case assoc.cardinality do
       :one ->
-        id = Map.get(ecto, owner_key) |> to_string()
+        id = Map.get(ecto, assoc.owner_key) |> to_string()
         path = Path.join([domain, assoc_source, id])
-        Map.put(acc, to_string(attr), path)
+        Map.put(acc, to_dash(attr), path)
 
-      _ ->
-        acc
+      :many ->
+        source = ecto.__struct__.__schema__(:source)
+        primary_key = ecto.__struct__.__schema__(:primary_key) |> List.first()
+        id = Map.get(ecto, primary_key) |> to_string()
+        path = Path.join([domain, source, id, assoc_source])
+        Map.put(acc, to_dash(attr), path)
+
+      _ -> acc
     end
 
     {links, ecto}

@@ -189,6 +189,12 @@ defmodule EctoJsonapi.LoadTest do
              ]
     end
 
+    test "links for 1 schema with a has_many relationship", data do
+      json = EctoJsonapi.Load.load(data.user_with_credit_cards)
+      expected_link =  "/users/#{data.user.id}/credit_cards"
+      assert get_in(json, ["data", "links", "credit-cards"]) == expected_link
+    end
+
     test "2 schemas with loaded has many", data do
       json = EctoJsonapi.Load.load([data.user_with_credit_cards, data.user_with_credit_cards])
 
