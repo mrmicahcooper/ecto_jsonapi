@@ -115,9 +115,9 @@ defmodule EctoJsonapi.LoadTest do
       json = EctoJsonapi.Load.load(data.credit_card)
 
       assert get_in(json, ["data", "relationships", "user", "data"]) == %{
-        "type" => "users",
-        "id" => data.user.id
-      }
+               "type" => "users",
+               "id" => data.user.id
+             }
     end
 
     test "1 schema with an unloaded but present belongs_to but no id", data do
@@ -129,9 +129,9 @@ defmodule EctoJsonapi.LoadTest do
       json = EctoJsonapi.Load.load(data.credit_card_with_user)
 
       assert get_in(json, ["data", "relationships", "user", "data"]) == %{
-        "type" => "users",
-        "id" => data.user.id
-      }
+               "type" => "users",
+               "id" => data.user.id
+             }
 
       assert get_in(json, ["data", "links", "user"]) == "/users/#{data.user.id}"
       assert get_in(json, ["included", Access.all(), "id"]) == [data.user.id]
@@ -139,16 +139,20 @@ defmodule EctoJsonapi.LoadTest do
     end
 
     test "1 schema with a loaded belongs to with `links` option", data do
-      json = EctoJsonapi.Load.load(data.credit_card_with_user, links: %{
-        domain: "https://foo@example.com",
-      })
+      json =
+        EctoJsonapi.Load.load(data.credit_card_with_user,
+          links: %{
+            domain: "https://foo@example.com"
+          }
+        )
 
       assert get_in(json, ["data", "relationships", "user", "data"]) == %{
-        "type" => "users",
-        "id" => data.user.id
-      }
+               "type" => "users",
+               "id" => data.user.id
+             }
 
-      assert get_in(json, ["data", "links", "user"]) == "https://foo@example.com/users/#{data.user.id}"
+      assert get_in(json, ["data", "links", "user"]) ==
+               "https://foo@example.com/users/#{data.user.id}"
     end
 
     test "2 schemas each with the same loaded belongs to", data do
@@ -191,7 +195,7 @@ defmodule EctoJsonapi.LoadTest do
 
     test "links for 1 schema with a has_many relationship", data do
       json = EctoJsonapi.Load.load(data.user_with_credit_cards)
-      expected_link =  "/users/#{data.user.id}/credit_cards"
+      expected_link = "/users/#{data.user.id}/credit_cards"
       assert get_in(json, ["data", "links", "credit-cards"]) == expected_link
     end
 

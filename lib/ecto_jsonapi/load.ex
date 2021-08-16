@@ -135,11 +135,12 @@ defmodule EctoJsonapi.Load do
       "attributes" => attributes(ecto, options)
     }
 
-    data = if relationships == %{} do
-      data
-    else
-      Map.put(data, "relationships", relationships)
-    end
+    data =
+      if relationships == %{} do
+        data
+      else
+        Map.put(data, "relationships", relationships)
+      end
 
     if links == %{} do
       data
@@ -179,25 +180,27 @@ defmodule EctoJsonapi.Load do
   end
 
   def link(attr, {acc, ecto}, options) do
-    assoc =  ecto.__struct__.__schema__(:association, attr)
+    assoc = ecto.__struct__.__schema__(:association, attr)
     assoc_source = assoc.related.__schema__(:source)
     domain = get_in(options, [:links, :domain]) || "/"
 
-    links = case assoc.cardinality do
-      :one ->
-        id = Map.get(ecto, assoc.owner_key) |> to_string()
-        path = Path.join([domain, assoc_source, id])
-        Map.put(acc, to_dash(attr), path)
+    links =
+      case assoc.cardinality do
+        :one ->
+          id = Map.get(ecto, assoc.owner_key) |> to_string()
+          path = Path.join([domain, assoc_source, id])
+          Map.put(acc, to_dash(attr), path)
 
-      :many ->
-        source = ecto.__struct__.__schema__(:source)
-        primary_key = ecto.__struct__.__schema__(:primary_key) |> List.first()
-        id = Map.get(ecto, primary_key) |> to_string()
-        path = Path.join([domain, source, id, assoc_source])
-        Map.put(acc, to_dash(attr), path)
+        :many ->
+          source = ecto.__struct__.__schema__(:source)
+          primary_key = ecto.__struct__.__schema__(:primary_key) |> List.first()
+          id = Map.get(ecto, primary_key) |> to_string()
+          path = Path.join([domain, source, id, assoc_source])
+          Map.put(acc, to_dash(attr), path)
 
-      _ -> acc
-    end
+        _ ->
+          acc
+      end
 
     {links, ecto}
   end

@@ -5,7 +5,7 @@ defmodule EctoJsonapi do
 
 
 
-  @spec attributes(Eco.Schema, [atom]) :: map
+  @spec attributes(Ecto.Schema, [atom]) :: map
   @doc """
   Return the selected attributes
 
