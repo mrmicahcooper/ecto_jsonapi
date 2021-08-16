@@ -314,8 +314,6 @@ defmodule EctoJsonapi.Load do
   defp error_format({attr, detail}) do
     %{
       "detail" => detail(detail),
-      "status" => 422,
-      "title" => "Invalid Attributes",
       "source" => %{
         "pointer" => "data/attributes/#{to_dash(attr)}"
       }
