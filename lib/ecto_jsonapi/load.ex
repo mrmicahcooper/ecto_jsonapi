@@ -314,8 +314,7 @@ defmodule EctoJsonapi.Load do
       "status" => 422,
       "title" => "Invalid Attributes",
       "source" => %{
-        "pointer" => "data/attributes/#{attr}",
-        "parameter" => to_string(attr)
+        "pointer" => "data/attributes/#{to_dash(attr)}"
       }
     }
   end

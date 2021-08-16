@@ -224,11 +224,19 @@ defmodule EctoJsonapi.LoadTest do
       changeset = %{age: 19, name: "Jo", email: nil} |> User.changeset()
       json = EctoJsonapi.load(changeset)
 
-      assert get_in(json, ["errors", Access.all(), "source", "parameter"]) == ~w[
-        email
-        name
-        age
+      assert get_in(json, ["errors", Access.all(), "source", "pointer"]) == ~w[
+        data/attributes/email
+        data/attributes/nick-name
+        data/attributes/name
+        data/attributes/age
       ]
+
+      assert get_in(json, ["errors", Access.all(), "detail"]) == [
+               "can't be blank",
+               "can't be blank",
+               "should be at least 3 character(s)",
+               "must be greater than 21"
+             ]
     end
   end
 end
